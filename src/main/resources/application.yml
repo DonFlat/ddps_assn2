@@ -1,2 +1,6 @@
 server:
   port: 2206
+
+nodeSetting:
+  master: ${MASTER_NODE}
+  isMaster: ${IS_MASTER}

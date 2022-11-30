@@ -11,4 +11,7 @@ interface MiniGfsClients {
 
     @RequestMapping(method = [RequestMethod.GET], value = ["/"])
     fun getStatus(): String
+
+    @RequestMapping(method = [RequestMethod.POST], value = ["/register-membership"])
+    fun checkMemberShipService(): Boolean
 }
