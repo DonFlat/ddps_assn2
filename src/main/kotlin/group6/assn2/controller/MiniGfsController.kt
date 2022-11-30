@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 
 @RestController
 class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClients) {
@@ -27,10 +28,9 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         private val workerMembership = mutableSetOf<String>()
     }
 
-    @GetMapping("/")
-    fun hello(): String {
-        log.info("Hit Here!")
-        return "I'm ok!\n"
+    @GetMapping("/alive")
+    fun checkConfirmation(): String {
+        return "up"
     }
 
     @PostMapping("/register-worker/{nodeId}")
@@ -49,13 +49,28 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
 
     @Scheduled(fixedRate = 5000)
     fun checkMemberShip() {
-        log.info("Checking if registered in master")
-        when (miniGfsClients.checkWorkerMemberShip(nodeId)) {
-            true -> log.info("$nodeId registered!")
-            false -> {
-                log.info("Retry registration")
-                val retryResult = miniGfsClients.checkWorkerMemberShip(nodeId)
-                log.info("Retried results: $retryResult")
+        try {
+            when (miniGfsClients.checkWorkerMemberShip(nodeId)) {
+                true -> log.info("$nodeId registered!")
+                false -> {
+                    log.info("$nodeId retry registration")
+                    val retryResult = miniGfsClients.checkWorkerMemberShip(nodeId)
+                    log.info("$nodeId retried results: $retryResult")
+                }
+            }
+        } catch (e: Exception) {
+            log.error("Unable to register at master $masterNode")
+        }
+    }
+
+    @Scheduled(fixedRate = 5000)
+    fun maintainMembership() {
+        for (worker in workerMembership) {
+            try {
+                miniGfsClients.checkAlive(URI.create("http://$worker:2206"), worker)
+                log.info("worker $worker is alive")
+            } catch (e: Exception) {
+                log.error("worker $worker was dead")
             }
         }
     }

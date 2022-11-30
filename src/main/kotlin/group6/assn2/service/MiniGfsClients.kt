@@ -5,13 +5,14 @@ import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import java.net.URI
 
 @Service
 @FeignClient(name = "miniGfsClient", url = "http://node102:2206")
 interface MiniGfsClients {
 
-    @RequestMapping(method = [RequestMethod.GET], value = ["/"])
-    fun getStatus(): String
+    @RequestMapping(method = [RequestMethod.GET], value = ["/alive/{nodeId}"])
+    fun checkAlive(baseUri: URI, @PathVariable("nodeId") nodeId: String): Boolean
 
     @RequestMapping(method = [RequestMethod.POST], value = ["/register-worker/{nodeId}"])
     fun checkWorkerMemberShip(@PathVariable("nodeId") nodeId: String): Boolean
