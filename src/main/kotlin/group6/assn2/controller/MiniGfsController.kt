@@ -33,22 +33,13 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         return "I'm ok!\n"
     }
 
-    @GetMapping("/call-client")
-    fun callClient() {
-        log.info("call client")
-        val status = miniGfsClients.getStatus()
-        log.info("Called, status: $status")
-    }
-
     @PostMapping("/register-worker/{nodeId}")
     fun registerWorker(@PathVariable nodeId: String): Boolean {
-        log.info("Received worker registration request: $nodeId")
         return when (workerMembership.contains(nodeId)) {
             true -> {
                 log.info("$nodeId has been registered")
                 true
             } false -> {
-                log.info("$nodeId not registered, now register")
                 workerMembership.add(nodeId)
                 log.info("$nodeId successfully registered")
                 true
@@ -60,7 +51,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     fun checkMemberShip() {
         log.info("Checking if registered in master")
         when (miniGfsClients.checkWorkerMemberShip(nodeId)) {
-            true -> log.info("Registered!")
+            true -> log.info("$nodeId registered!")
             false -> {
                 log.info("Retry registration")
                 val retryResult = miniGfsClients.checkWorkerMemberShip(nodeId)
