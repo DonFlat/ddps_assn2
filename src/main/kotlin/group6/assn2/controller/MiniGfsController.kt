@@ -40,7 +40,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         log.info("Called, status: $status")
     }
 
-    @PostMapping("/register-membership/{nodeId}")
+    @PostMapping("/register-worker/{nodeId}")
     fun registerWorker(@PathVariable nodeId: String): Boolean {
         log.info("Received worker registration request: $nodeId")
         return when (workerMembership.contains(nodeId)) {
