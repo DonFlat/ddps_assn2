@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-gradle bootRun
+java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar
 
 # sed -i -e 's/\r$//' gradlew
