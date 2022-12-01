@@ -2,6 +2,6 @@ server:
   port: 2206
 
 nodeSetting:
-  master: ${MASTER_NODE}
-  isMaster: ${IS_MASTER}
-  nodeId: ${NODE_ID}
+  master: ${MASTER_NODE:node102}
+  isMaster: ${IS_MASTER:true}
+  nodeId: ${NODE_ID:node102}
