@@ -57,11 +57,11 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
             }
         } else {
             try {
-                when (miniGfsClients.checkWorkerMemberShip(nodeId)) {
+                when (miniGfsClients.checkWorkerMemberShip(URI.create("http://$masterNode:2206"), nodeId)) {
                     true -> log.info("$nodeId registered!")
                     false -> {
                         log.info("$nodeId retry registration")
-                        val retryResult = miniGfsClients.checkWorkerMemberShip(nodeId)
+                        val retryResult = miniGfsClients.checkWorkerMemberShip(URI.create("http://$masterNode:2206"), nodeId)
                         log.info("$nodeId retried results: $retryResult")
                     }
                 }

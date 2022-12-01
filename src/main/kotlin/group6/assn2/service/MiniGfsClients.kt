@@ -15,5 +15,5 @@ interface MiniGfsClients {
     fun checkAlive(baseUri: URI): String
 
     @RequestMapping(method = [RequestMethod.POST], value = ["/register-worker/{nodeId}"])
-    fun checkWorkerMemberShip(@PathVariable("nodeId") nodeId: String): Boolean
+    fun checkWorkerMemberShip(baseUri: URI, @PathVariable("nodeId") nodeId: String): Boolean
 }
