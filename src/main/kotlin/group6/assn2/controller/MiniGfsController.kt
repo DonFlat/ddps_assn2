@@ -48,29 +48,28 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     }
 
     @Scheduled(fixedRate = 5000)
-    fun checkMemberShip() {
-        try {
-            when (miniGfsClients.checkWorkerMemberShip(nodeId)) {
-                true -> log.info("$nodeId registered!")
-                false -> {
-                    log.info("$nodeId retry registration")
-                    val retryResult = miniGfsClients.checkWorkerMemberShip(nodeId)
-                    log.info("$nodeId retried results: $retryResult")
+    fun maintainMembership() {
+        if (isMaster.toBoolean()) {
+            for (worker in workerMembership) {
+                try {
+                    miniGfsClients.checkAlive(URI.create("http://$worker:2206"), worker)
+                    log.info("worker $worker is alive")
+                } catch (e: Exception) {
+                    log.error("worker $worker was dead")
                 }
             }
-        } catch (e: Exception) {
-            log.error("Unable to register at master $masterNode")
-        }
-    }
-
-    @Scheduled(fixedRate = 5000)
-    fun maintainMembership() {
-        for (worker in workerMembership) {
+        } else {
             try {
-                miniGfsClients.checkAlive(URI.create("http://$worker:2206"), worker)
-                log.info("worker $worker is alive")
+                when (miniGfsClients.checkWorkerMemberShip(nodeId)) {
+                    true -> log.info("$nodeId registered!")
+                    false -> {
+                        log.info("$nodeId retry registration")
+                        val retryResult = miniGfsClients.checkWorkerMemberShip(nodeId)
+                        log.info("$nodeId retried results: $retryResult")
+                    }
+                }
             } catch (e: Exception) {
-                log.error("worker $worker was dead")
+                log.error("Unable to register at master $masterNode")
             }
         }
     }
