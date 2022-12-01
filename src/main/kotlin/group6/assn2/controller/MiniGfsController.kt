@@ -17,9 +17,6 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     @Value("\${nodeSetting.master}")
     lateinit var masterNode: String
 
-    @Value("\${nodeSetting.isMaster}")
-    lateinit var isMaster: String
-
     @Value("\${nodeSetting.nodeId}")
     lateinit var nodeId: String
 
@@ -49,7 +46,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
 
     @Scheduled(fixedRate = 5000)
     fun maintainMembership() {
-        if (isMaster.toBoolean()) {
+        if (nodeId == masterNode) {
             for (worker in workerMembership) {
                 try {
                     miniGfsClients.checkAlive(URI.create("http://$worker:2206"))

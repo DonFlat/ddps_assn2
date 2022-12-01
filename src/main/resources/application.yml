@@ -3,5 +3,4 @@ server:
 
 nodeSetting:
   master: ${MASTER_NODE:node102}
-  isMaster: ${IS_MASTER:true}
   nodeId: ${NODE_ID:node102}
