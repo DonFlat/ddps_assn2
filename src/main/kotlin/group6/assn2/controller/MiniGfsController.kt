@@ -14,13 +14,13 @@ import java.net.URI
 @RestController
 class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClients) {
 
-    @Value("nodeSetting.master")
+    @Value("\${nodeSetting.master}")
     lateinit var masterNode: String
 
-    @Value("nodeSetting.isMaster")
+    @Value("\${nodeSetting.isMaster}")
     lateinit var isMaster: String
 
-    @Value("nodeSetting.nodeId")
+    @Value("\${nodeSetting.nodeId}")
     lateinit var nodeId: String
 
     companion object {
