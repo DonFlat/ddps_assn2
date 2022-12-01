@@ -11,8 +11,8 @@ import java.net.URI
 @FeignClient(name = "miniGfsClient", url = "http://node102:2206")
 interface MiniGfsClients {
 
-    @RequestMapping(method = [RequestMethod.GET], value = ["/alive/{nodeId}"])
-    fun checkAlive(baseUri: URI, @PathVariable("nodeId") nodeId: String): Boolean
+    @RequestMapping(method = [RequestMethod.GET], value = ["/alive"])
+    fun checkAlive(baseUri: URI): Boolean
 
     @RequestMapping(method = [RequestMethod.POST], value = ["/register-worker/{nodeId}"])
     fun checkWorkerMemberShip(@PathVariable("nodeId") nodeId: String): Boolean

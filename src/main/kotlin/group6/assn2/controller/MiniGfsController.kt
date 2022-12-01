@@ -52,7 +52,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         if (isMaster.toBoolean()) {
             for (worker in workerMembership) {
                 try {
-                    miniGfsClients.checkAlive(URI.create("http://$worker:2206"), worker)
+                    miniGfsClients.checkAlive(URI.create("http://$worker:2206"))
                     log.info("worker $worker is alive")
                 } catch (e: Exception) {
                     log.error("worker $worker was dead", e)
