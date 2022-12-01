@@ -12,7 +12,7 @@ import java.net.URI
 interface MiniGfsClients {
 
     @RequestMapping(method = [RequestMethod.GET], value = ["/alive"])
-    fun checkAlive(baseUri: URI): Boolean
+    fun checkAlive(baseUri: URI): String
 
     @RequestMapping(method = [RequestMethod.POST], value = ["/register-worker/{nodeId}"])
     fun checkWorkerMemberShip(@PathVariable("nodeId") nodeId: String): Boolean
