@@ -1,15 +1,26 @@
 package group6.assn2.controller
 
 import group6.assn2.service.MiniGfsClients
+import org.apache.commons.io.filefilter.WildcardFileFilter
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
+import utils.Metadata.metadata
+import utils.Metadata.workerMembership
+import java.io.File
+import java.io.FileFilter
+import java.io.FilenameFilter
 import java.net.URI
+import java.time.Instant
 
 @RestController
 class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClients) {
@@ -22,7 +33,6 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
 
     companion object {
         private val log = LoggerFactory.getLogger(MiniGfsController::class.java)
-        private val workerMembership = mutableSetOf<String>()
     }
 
     @GetMapping("/alive")
@@ -69,5 +79,64 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
                 log.error("Unable to register at master $masterNode")
             }
         }
+    }
+
+    @GetMapping("/file/{fileName}/metadata")
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun getFileMetaData(@PathVariable("fileName") fileName: String): MutableList<String> {
+        if (metadata[fileName] == null) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "not such file")
+        } else {
+            val replicaList = mutableListOf<String>()
+            for (s in metadata[fileName]!!) {
+                replicaList.add(s)
+            }
+            return replicaList
+        }
+    }
+
+    @GetMapping("/file/{fileName}/content")
+    fun getFileContent(@PathVariable("fileName") fileName: String): String {
+        log.info("Find $fileName")
+        val matchedFiles = File(".").listFiles(WildcardFileFilter("${fileName}*") as FilenameFilter)
+        return matchedFiles[0].name
+    }
+
+    @PostMapping("/file/{fileName}/content/{replicateNumber}")
+    fun writeFile(@PathVariable("fileName") fileName: String, @PathVariable("replicateNumber") replicateNumber: Int, @RequestBody fileContent: String) {
+        for (i in 1..replicateNumber) {
+            File("${fileName}-${Instant.now()}").writeText(fileContent)
+        }
+    }
+
+    @GetMapping("/{fileName}/lease")
+    fun getLeaseInfo(@PathVariable("fileName") fileName: String): MutableList<String> {
+        val availableChunkServers = mutableSetOf<String>().apply {
+            addAll(workerMembership)
+        }
+
+        val replicas = metadata[fileName]
+
+        val chunkServers = mutableListOf<String>()
+        if (replicas == null) {
+            // Random assign a primary
+            availableChunkServers.random().also {
+                availableChunkServers.remove(it)
+                chunkServers.add(it)
+            }
+            // poll more chunkservers as secondary replicas
+            while (availableChunkServers.size > 0 || chunkServers.size < 3) {
+                availableChunkServers.random().also {
+                    availableChunkServers.remove(it)
+                    chunkServers.add(it)
+                }
+            }
+            return chunkServers
+        } else {
+            for (i in replicas) {
+                chunkServers.add(i)
+            }
+        }
+        return chunkServers
     }
 }
