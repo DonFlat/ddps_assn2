@@ -3,7 +3,7 @@
 master=$1
 node=$2
 
-MASTER_NODE=$master NODE_ID=$node java -jar assn2-0.0.1-SNAPSHOT.jar
+MASTER_NODE=$master NODE_ID=$node java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar
 
 #ssh $master "MASTER_NODE=$master NODE_ID=$master java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar"
 #
