@@ -1,7 +1,7 @@
-package utils
+package group6.assn2.utils
 
 object Metadata {
-    val workerMembership = mutableSetOf<String>()
+    val workerMembership = mutableMapOf<String, Boolean>()
     /*
        1 elem in deque is primary
        Where the file is

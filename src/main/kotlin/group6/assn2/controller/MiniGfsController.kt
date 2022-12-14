@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import utils.Metadata.metadata
-import utils.Metadata.workerMembership
+import group6.assn2.utils.Metadata.metadata
+import group6.assn2.utils.Metadata.workerMembership
 import java.io.File
 import java.io.FilenameFilter
 import java.net.URI
@@ -46,7 +46,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
 //                log.info("$nodeId has been registered")
                 true
             } false -> {
-                workerMembership.add(nodeId)
+                workerMembership[nodeId] = true
                 log.info("$nodeId successfully registered")
                 true
             }
@@ -87,8 +87,9 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     fun writeFile(@PathVariable("fileName") fileName: String, @PathVariable("replicateNumber") replicateNumber: Int, @RequestBody fileContent: String) {
         log.info("Write $fileName at $myNodeId")
         for (i in 1..replicateNumber) {
-            File("${fileName}-${myNodeId}-${Instant.now()}").writeText(fileContent)
+            File("./saved/${fileName}-${myNodeId}-${Instant.now()}").writeText(fileContent)
         }
+        metadata[fileName]?.add(myNodeId)
     }
 
     /**
@@ -98,7 +99,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     @GetMapping("/{fileName}/lease")
     fun getLeaseInfo(@PathVariable("fileName") fileName: String): MutableList<String> {
         val availableChunkServers = mutableSetOf<String>().apply {
-            addAll(workerMembership)
+            addAll(workerMembership.keys.filter { workerMembership[it] == true })
         }
 
         val replicas = metadata[fileName]
@@ -154,6 +155,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
                 miniGfsClients.checkAlive(URI.create("http://$worker:2206"))
 //                log.info("worker $worker is alive")
             } catch (e: Exception) {
+                worker.setValue(false)
                 log.error("worker $worker was dead", e)
             }
         }
