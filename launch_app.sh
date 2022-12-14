@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 
 master=$1
+node=$2
 
-ssh $master "MASTER_NODE=$master NODE_ID=$master java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar"
+MASTER_NODE=$master NODE_ID=$node java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar
 
-while [ x != "x$2" ] ; do
-  if [ -h "$2" ]; then
-      break
-  else
-    echo "MASTER_NODE=$master NODE_ID=$2 java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar"
-  fi
-  shift
-done
+#ssh $master "MASTER_NODE=$master NODE_ID=$master java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar"
+#
+#while [ x != "x$2" ] ; do
+#  if [ -h "$2" ]; then
+#      break
+#  else
+#    echo "MASTER_NODE=$master NODE_ID=$2 java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar"
+#  fi
+#  shift
+#done
 
 
 # MASTER_NODE=$master NODE_ID=$node java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar
