@@ -17,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException
 import utils.Metadata.metadata
 import utils.Metadata.workerMembership
 import java.io.File
-import java.io.FileFilter
 import java.io.FilenameFilter
 import java.net.URI
 import java.time.Instant
@@ -109,6 +108,10 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         }
     }
 
+    /**
+     * The master's endpoint
+     * return a list of node: [lease, secondary replica 1, secondary replica 2]
+     */
     @GetMapping("/{fileName}/lease")
     fun getLeaseInfo(@PathVariable("fileName") fileName: String): MutableList<String> {
         val availableChunkServers = mutableSetOf<String>().apply {
@@ -117,26 +120,30 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
 
         val replicas = metadata[fileName]
 
-        val chunkServers = mutableListOf<String>()
+        val chunkServersToWrite = mutableListOf<String>()
         if (replicas == null) {
-            // Random assign a primary
+            assignNewChunkServers(availableChunkServers, chunkServersToWrite)
+        } else {
+            replicas.forEach { chunkServersToWrite.add(it) }
+        }
+        return chunkServersToWrite
+    }
+
+    private fun assignNewChunkServers(
+        availableChunkServers: MutableSet<String>,
+        chunkServersToWrite: MutableList<String>
+    ) {
+        // Random assign a primary
+        availableChunkServers.random().also {
+            availableChunkServers.remove(it)
+            chunkServersToWrite.add(it)
+        }
+        // poll more chunkservers as secondary replicas
+        while (availableChunkServers.size > 0 && chunkServersToWrite.size < 3) {
             availableChunkServers.random().also {
                 availableChunkServers.remove(it)
-                chunkServers.add(it)
-            }
-            // poll more chunkservers as secondary replicas
-            while (availableChunkServers.size > 0 || chunkServers.size < 3) {
-                availableChunkServers.random().also {
-                    availableChunkServers.remove(it)
-                    chunkServers.add(it)
-                }
-            }
-            return chunkServers
-        } else {
-            for (i in replicas) {
-                chunkServers.add(i)
+                chunkServersToWrite.add(it)
             }
         }
-        return chunkServers
     }
 }
