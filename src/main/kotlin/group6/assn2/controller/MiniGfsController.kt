@@ -43,7 +43,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     fun registerWorker(@PathVariable nodeId: String): Boolean {
         return when (workerMembership.contains(nodeId)) {
             true -> {
-                log.info("$nodeId has been registered")
+//                log.info("$nodeId has been registered")
                 true
             } false -> {
                 workerMembership.add(nodeId)
@@ -85,6 +85,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
 
     @PostMapping("/file/{fileName}/content/{replicateNumber}")
     fun writeFile(@PathVariable("fileName") fileName: String, @PathVariable("replicateNumber") replicateNumber: Int, @RequestBody fileContent: String) {
+        log.info("Write $fileName at $myNodeId")
         for (i in 1..replicateNumber) {
             File("${fileName}-${myNodeId}-${Instant.now()}").writeText(fileContent)
         }
@@ -132,7 +133,9 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     private fun keepRegisteredAtMaster() {
         try {
             when (miniGfsClients.checkWorkerMemberShip(URI.create("http://$masterNode:2206"), myNodeId)) {
-                true -> log.info("$myNodeId registered!")
+                true -> {
+//                    log.info("$myNodeId registered!")
+                }
                 false -> {
                     log.info("$myNodeId retry registration")
                     val retryResult =
@@ -149,7 +152,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         for (worker in workerMembership) {
             try {
                 miniGfsClients.checkAlive(URI.create("http://$worker:2206"))
-                log.info("worker $worker is alive")
+//                log.info("worker $worker is alive")
             } catch (e: Exception) {
                 log.error("worker $worker was dead", e)
             }
