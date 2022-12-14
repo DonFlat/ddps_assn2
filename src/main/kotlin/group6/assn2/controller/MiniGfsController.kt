@@ -28,7 +28,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     lateinit var masterNode: String
 
     @Value("\${nodeSetting.nodeId}")
-    lateinit var nodeId: String
+    lateinit var myNodeId: String
 
     companion object {
         private val log = LoggerFactory.getLogger(MiniGfsController::class.java)
@@ -55,28 +55,10 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
 
     @Scheduled(fixedRate = 5000)
     fun maintainMembership() {
-        if (nodeId == masterNode) {
-            for (worker in workerMembership) {
-                try {
-                    miniGfsClients.checkAlive(URI.create("http://$worker:2206"))
-                    log.info("worker $worker is alive")
-                } catch (e: Exception) {
-                    log.error("worker $worker was dead", e)
-                }
-            }
+        if (myNodeId == masterNode) {
+            detectAliveChunkServer()
         } else {
-            try {
-                when (miniGfsClients.checkWorkerMemberShip(URI.create("http://$masterNode:2206"), nodeId)) {
-                    true -> log.info("$nodeId registered!")
-                    false -> {
-                        log.info("$nodeId retry registration")
-                        val retryResult = miniGfsClients.checkWorkerMemberShip(URI.create("http://$masterNode:2206"), nodeId)
-                        log.info("$nodeId retried results: $retryResult")
-                    }
-                }
-            } catch (e: Exception) {
-                log.error("Unable to register at master $masterNode")
-            }
+            keepRegisteredAtMaster()
         }
     }
 
@@ -104,7 +86,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     @PostMapping("/file/{fileName}/content/{replicateNumber}")
     fun writeFile(@PathVariable("fileName") fileName: String, @PathVariable("replicateNumber") replicateNumber: Int, @RequestBody fileContent: String) {
         for (i in 1..replicateNumber) {
-            File("${fileName}-${Instant.now()}").writeText(fileContent)
+            File("${fileName}-${myNodeId}-${Instant.now()}").writeText(fileContent)
         }
     }
 
@@ -143,6 +125,33 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
             availableChunkServers.random().also {
                 availableChunkServers.remove(it)
                 chunkServersToWrite.add(it)
+            }
+        }
+    }
+
+    private fun keepRegisteredAtMaster() {
+        try {
+            when (miniGfsClients.checkWorkerMemberShip(URI.create("http://$masterNode:2206"), myNodeId)) {
+                true -> log.info("$myNodeId registered!")
+                false -> {
+                    log.info("$myNodeId retry registration")
+                    val retryResult =
+                        miniGfsClients.checkWorkerMemberShip(URI.create("http://$masterNode:2206"), myNodeId)
+                    log.info("$myNodeId retried results: $retryResult")
+                }
+            }
+        } catch (e: Exception) {
+            log.error("Unable to register at master $masterNode")
+        }
+    }
+
+    private fun detectAliveChunkServer() {
+        for (worker in workerMembership) {
+            try {
+                miniGfsClients.checkAlive(URI.create("http://$worker:2206"))
+                log.info("worker $worker is alive")
+            } catch (e: Exception) {
+                log.error("worker $worker was dead", e)
             }
         }
     }
