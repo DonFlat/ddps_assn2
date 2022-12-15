@@ -9,7 +9,7 @@ export default function () {
     const getLeaseUrl = `http://${masterNode}:2206/${fileName}/lease`
 
     const chunkservers = http.get(getLeaseUrl)
-    console.log(`chunkserver num: ${chunkservers.json()}`)
+    console.log(`chunkserver num: ${chunkservers.json()[0]}`)
 
     let servers = []
     // Write to chunkserver
