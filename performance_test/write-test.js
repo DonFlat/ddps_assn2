@@ -9,12 +9,9 @@ export default function () {
     const getLeaseUrl = `http://${masterNode}:2206/${fileName}/lease`
 
     const chunkservers = http.get(getLeaseUrl)
-    console.log(`chunkserver num: ${chunkservers.body.length}: ${chunkservers.body}`)
-    let servers = []
-    for (let i in chunkservers.body) {
-        servers.push(i)
-    }
+    console.log(`chunkserver num: ${chunkservers.json()}`)
 
+    let servers = []
     // Write to chunkserver
     const content = 'This part sent from the k6 test'
     if (servers.length === 1) {
