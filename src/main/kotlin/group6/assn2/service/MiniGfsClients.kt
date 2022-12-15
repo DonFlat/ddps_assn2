@@ -18,5 +18,5 @@ interface MiniGfsClients {
     fun checkWorkerMemberShip(baseUri: URI, @PathVariable("nodeId") nodeId: String): Boolean
 
     @RequestMapping(method = [RequestMethod.POST], value = ["{fileName}/{nodeId}/metadata"])
-    fun addFileMetaData(baseUri: URI, @PathVariable("fileName") fileName: String, @PathVariable("nodeId") nodeId: String): Boolean
+    fun addFileMetaData(baseUri: URI, @PathVariable("fileName") fileName: String, @PathVariable("nodeId") nodeId: String)
 }
