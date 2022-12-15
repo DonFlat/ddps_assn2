@@ -152,11 +152,11 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     private fun detectAliveChunkServer() {
         for (worker in workerMembership) {
             try {
-                miniGfsClients.checkAlive(URI.create("http://$worker:2206"))
+                miniGfsClients.checkAlive(URI.create("http://${worker.key}:2206"))
 //                log.info("worker $worker is alive")
             } catch (e: Exception) {
                 worker.setValue(false)
-                log.error("worker $worker was dead", e)
+                log.error("worker ${worker.key} was dead", e)
             }
         }
     }
