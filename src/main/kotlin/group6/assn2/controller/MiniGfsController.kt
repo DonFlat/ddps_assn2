@@ -87,7 +87,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     fun writeFile(@PathVariable("fileName") fileName: String, @PathVariable("replicateNumber") replicateNumber: Int, @RequestBody fileContent: String) {
         log.info("Write $fileName at $myNodeId")
         for (i in 1..replicateNumber) {
-            File("./saved/${fileName}-${myNodeId}-${Instant.now()}").writeText(fileContent)
+            File("./saved/${fileName}-${myNodeId}-${Instant.now().toString().takeLast(6)}").writeText(fileContent)
         }
         metadata[fileName]?.add(myNodeId)
     }
