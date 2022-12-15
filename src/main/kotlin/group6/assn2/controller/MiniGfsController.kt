@@ -86,7 +86,6 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         } else {
             metadata[fileName]!!.add(nodeId)
         }
-        log.info("Added metadata at master: $nodeId, $fileName")
     }
 
     @GetMapping("/file/{fileName}/content")
@@ -100,7 +99,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     fun writeFile(@PathVariable("fileName") fileName: String, @PathVariable("replicateNumber") replicateNumber: Int, @RequestBody fileContent: String) {
         log.info("Write $fileName at $myNodeId")
         for (i in 1..replicateNumber) {
-            File("${fileName}-${myNodeId}-${Instant.now().toString().takeLast(6)}").writeText(fileContent)
+            File("${fileName}-${myNodeId}-${Instant.now().toString().takeLast(4)}").writeText(fileContent)
         }
         miniGfsClients.addFileMetaData(URI.create("http://$masterNode:2206"), fileName, myNodeId)
 //        addMetadataSingleMachine(fileName, myNodeId)
