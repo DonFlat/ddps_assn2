@@ -5,7 +5,7 @@ node=$2
 
 #MASTER_NODE=$master NODE_ID=$node java -jar build/libs/assn2-0.0.1-SNAPSHOT.jar
 
-ssh node "MASTER_NODE=$master NODE_ID=$node java -jar /var/scratch/ddps2206/ddps_assn2/build/libs/assn2-0.0.1-SNAPSHOT.jar"
+ssh $node "MASTER_NODE=$master NODE_ID=$node java -jar /var/scratch/ddps2206/ddps_assn2/build/libs/assn2-0.0.1-SNAPSHOT.jar"
 #
 #while [ x != "x$2" ] ; do
 #  if [ -h "$2" ]; then
