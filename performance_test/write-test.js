@@ -4,7 +4,7 @@ export default function () {
 
     // Obtain leases
     const masterNode = 'node105'
-    const fileName = 'hello-there'
+    const fileName = `hello-there-${Date.now()}`
 
     const getLeaseUrl = `http://${masterNode}:2206/${fileName}/lease`
 
