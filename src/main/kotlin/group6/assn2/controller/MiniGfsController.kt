@@ -63,8 +63,8 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     }
 
     @GetMapping("/file/{fileName}/metadata")
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     fun getFileMetaData(@PathVariable("fileName") fileName: String): MutableList<String> {
+        log.info("Read metadata of file: $fileName")
         if (metadata[fileName] == null) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "not such file")
         } else {
