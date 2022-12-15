@@ -2,5 +2,5 @@ server:
   port: 2206
 
 nodeSetting:
-  master: ${MASTER_NODE:node102}
-  nodeId: ${NODE_ID:node102}
+  master: ${MASTER_NODE:localhost}
+  nodeId: ${NODE_ID:localhost}

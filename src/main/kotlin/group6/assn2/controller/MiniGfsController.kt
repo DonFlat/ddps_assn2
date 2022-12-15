@@ -82,10 +82,11 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         log.info("Add metadata at master: $nodeId, $fileName")
         if (metadata[fileName] == null) {
             metadata[fileName] = ArrayDeque()
-            metadata[fileName]!!.add(myNodeId)
+            metadata[fileName]!!.add(nodeId)
         } else {
-            metadata[fileName]!!.add(myNodeId)
+            metadata[fileName]!!.add(nodeId)
         }
+        log.info("Added metadata at master: $nodeId, $fileName")
     }
 
     @GetMapping("/file/{fileName}/content")
@@ -102,6 +103,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
             File("${fileName}-${myNodeId}-${Instant.now().toString().takeLast(6)}").writeText(fileContent)
         }
         miniGfsClients.addFileMetaData(URI.create("http://$masterNode:2206"), fileName, myNodeId)
+//        addMetadataSingleMachine(fileName, myNodeId)
     }
 
     /**
@@ -170,6 +172,15 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
                 worker.setValue(false)
                 log.error("worker ${worker.key} was dead", e)
             }
+        }
+    }
+
+    private fun addMetadataSingleMachine(fileName: String, nodeId: String) {
+        if (metadata[fileName] == null) {
+            metadata[fileName] = ArrayDeque()
+            metadata[fileName]!!.add(nodeId)
+        } else {
+            metadata[fileName]!!.add(nodeId)
         }
     }
 }
