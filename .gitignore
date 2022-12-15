@@ -37,3 +37,4 @@ out/
 .vscode/
 hello-world*
 saved
+test-client.py

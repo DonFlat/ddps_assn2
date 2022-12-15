@@ -66,6 +66,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
     fun getFileMetaData(@PathVariable("fileName") fileName: String): MutableList<String> {
         log.info("Read metadata of file: $fileName")
         if (metadata[fileName] == null) {
+            log.info("No recorded metadata: $fileName")
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "not such file")
         } else {
             val replicaList = mutableListOf<String>()
@@ -76,11 +77,22 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         }
     }
 
+    @PostMapping("/{fileName}/{nodeId}/metadata")
+    fun addFileMetaData(@PathVariable("fileName") fileName: String, @PathVariable("nodeId") nodeId: String) {
+        log.info("Add metadata at master: $nodeId, $fileName")
+        if (metadata[fileName] == null) {
+            metadata[fileName] = ArrayDeque()
+            metadata[fileName]!!.add(myNodeId)
+        } else {
+            metadata[fileName]!!.add(myNodeId)
+        }
+    }
+
     @GetMapping("/file/{fileName}/content")
     fun getFileContent(@PathVariable("fileName") fileName: String): String {
         log.info("Find $fileName")
         val matchedFiles = File(".").listFiles(WildcardFileFilter("${fileName}*") as FilenameFilter)
-        return matchedFiles[0].name
+        return matchedFiles[0].readText()
     }
 
     @PostMapping("/file/{fileName}/content/{replicateNumber}")
@@ -89,7 +101,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         for (i in 1..replicateNumber) {
             File("${fileName}-${myNodeId}-${Instant.now().toString().takeLast(6)}").writeText(fileContent)
         }
-        metadata[fileName]?.add(myNodeId)
+        miniGfsClients.addFileMetaData(URI.create("http://$masterNode:2206"), fileName, myNodeId)
     }
 
     /**
