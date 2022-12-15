@@ -110,6 +110,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
      */
     @GetMapping("/{fileName}/lease")
     fun getLeaseInfo(@PathVariable("fileName") fileName: String): MutableList<String> {
+        log.info("current directory is: ${File("").absolutePath}")
         val availableChunkServers = mutableSetOf<String>().apply {
             addAll(workerMembership.keys.filter { workerMembership[it] == true })
         }
