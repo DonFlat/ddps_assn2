@@ -4,7 +4,7 @@ import {big_text} from "./big_text.js";
 export default function () {
 
     // Obtain leases
-    const masterNode = 'node105'
+    const masterNode = 'node116'
     const fileName = `hello-there-${Date.now()}`
 
     const getLeaseUrl = `http://${masterNode}:2206/${fileName}/lease`
