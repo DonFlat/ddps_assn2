@@ -1,5 +1,5 @@
 import http from 'k6/http'
-import {big_text} from "./big_text";
+import {big_text} from "./big_text.js";
 
 export default function () {
 
