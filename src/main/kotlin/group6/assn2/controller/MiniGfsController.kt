@@ -110,7 +110,6 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
      */
     @GetMapping("/{fileName}/lease")
     fun getLeaseInfo(@PathVariable("fileName") fileName: String): MutableList<String> {
-        log.info("current directory is: ${File("").absolutePath}")
         val availableChunkServers = mutableSetOf<String>().apply {
             addAll(workerMembership.keys.filter { workerMembership[it] == true })
         }
@@ -131,9 +130,14 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
         chunkServersToWrite: MutableList<String>
     ) {
         // Random assign a primary
-        availableChunkServers.random().also {
-            availableChunkServers.remove(it)
-            chunkServersToWrite.add(it)
+        try {
+            availableChunkServers.random().also {
+                availableChunkServers.remove(it)
+                chunkServersToWrite.add(it)
+            }
+        } catch (e: Exception) {
+            log.error("No available chunkserver")
+            throw e
         }
         // poll more chunkservers as secondary replicas
         while (availableChunkServers.size > 0 && chunkServersToWrite.size < 3) {
