@@ -1,4 +1,5 @@
 import http from 'k6/http'
+import {big_text} from "./big_text";
 
 export default function () {
 
@@ -12,7 +13,7 @@ export default function () {
     console.log(`chunkserver: ${servers}`)
 
     // Write to chunkserver
-    const content = 'This part sent from the k6 test'
+    const content = big_text
     if (servers.length === 1) {
         const writeFileUrl = `http://${servers[0]}:2206/file/${fileName}/content/${3}`
         http.post(writeFileUrl, content)

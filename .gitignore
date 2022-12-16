@@ -38,3 +38,4 @@ out/
 hello-world*
 saved
 test-client.py
+performance_test/big_text.js
