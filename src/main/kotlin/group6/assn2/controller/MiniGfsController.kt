@@ -72,6 +72,8 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
             for (s in metadata[fileName]!!) {
                 replicaList.add(s)
             }
+            replicaList.filter { workerMembership[it] == true }
+            log.info("found available data server storing the file: $fileName, $replicaList")
             return replicaList
         }
     }
