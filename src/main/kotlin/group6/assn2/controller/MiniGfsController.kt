@@ -176,7 +176,7 @@ class MiniGfsController @Autowired constructor(val miniGfsClients: MiniGfsClient
 //                log.info("worker $worker is alive")
             } catch (e: Exception) {
                 worker.setValue(false)
-                log.error("worker ${worker.key} was dead", e)
+                log.error("worker ${worker.key} was dead")
             }
         }
     }
